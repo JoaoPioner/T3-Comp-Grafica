@@ -46,7 +46,12 @@ public class ExemploBasico3D {
     private Vector3f rotacaoAmbiente = new Vector3f(20f, 0f, 0f);
     private boolean isRuinning = true;
 
+<<<<<<< HEAD
     Personagem player;
+=======
+    private static final int NUM_DE_TEXTURAS = 2;
+    private static int[] texturas = {1001};
+>>>>>>> b7e62c4440d49aa0ab526a8cacf3d55429761ba4
 
     private ExemploBasico3D() {
         this.width = DEFAULT_WIDTH;
@@ -114,10 +119,22 @@ public class ExemploBasico3D {
         initGL();
     }
 
+<<<<<<< HEAD
     static int[] textures = {1001};
 
     public static void loadTexture() throws IOException {
         glEnable(GL_TEXTURE_2D);
+=======
+    //A minha versao java do codigo do matheus ficou meio porca,
+    //entao acabei achando uma outra maneira q tlvz faca mais sentido para o java: https://stackoverflow.com/questions/41901468/load-a-texture-within-opengl-and-lwjgl3-in-java/41902221
+    // obviamente temos q achar um jeito de mascarar ela
+    //se conseguir fazer a do matheus funcionar, melhor.
+    //detalhe: o PNGDecoder eh de uma biblioteca externa, vale a pena adicionar? link: https://mvnrepository.com/artifact/org.l33tlabs.twl/pngdecoder/1.0
+
+    public static void loadTexture() throws IOException {
+        glEnable(GL_TEXTURE_2D);
+        glGenTextures(texturas);
+>>>>>>> b7e62c4440d49aa0ab526a8cacf3d55429761ba4
 
         glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 
