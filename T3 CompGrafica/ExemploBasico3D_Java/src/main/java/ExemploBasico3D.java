@@ -46,8 +46,7 @@ public class ExemploBasico3D {
     private Vector3f rotacaoAmbiente = new Vector3f(20f, 0f, 0f);
     private boolean isRuinning = true;
 
-    private static final int NUM_DE_TEXTURAS = 2;
-    private static int[] texturas = {1001, 1011};
+    Personagem player;
 
     private ExemploBasico3D() {
         this.width = DEFAULT_WIDTH;
@@ -115,38 +114,22 @@ public class ExemploBasico3D {
         initGL();
     }
 
-    //A minha versao java do codigo do matheus ficou meio porca,
-    //entao acabei achando uma outra maneira q tlvz faca mais sentido para o java: https://stackoverflow.com/questions/41901468/load-a-texture-within-opengl-and-lwjgl3-in-java/41902221
-    // obviamente temos q achar um jeito de mascarar ela
-    //se conseguir fazer a do matheus funcionar, melhor.
-    //detalhe: o PNGDecoder eh de uma biblioteca externa, vale a pena adicionar? link: https://mvnrepository.com/artifact/org.l33tlabs.twl/pngdecoder/1.0
     static int[] textures = {1001};
 
     public static void loadTexture() throws IOException {
         glEnable(GL_TEXTURE_2D);
+
+        glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+
         glGenTextures(textures);
 
-        BufferedImage read = ImageIO.read(new File("/home/deividsantos/faculdade/T3-Comp-Grafica/T3 CompGrafica/ExemploBasico3D_Java/src/main/resources/img.png"));
+        glBindTexture(GL_TEXTURE_2D, textures[0]);
+
+        BufferedImage read = ImageIO.read(new File("C:\\Users\\jjvpi\\Desktop\\T3 Grafica_git\\T3-Comp-Grafica\\T3 CompGrafica\\ExemploBasico3D_Java\\src\\main\\resources\\img.png"));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(read, "png", baos);
-        baos.flush();
-        byte[] imageInByte = baos.toByteArray();
-        baos.close();
-        ByteBuffer buf = ByteBuffer.wrap(imageInByte);
 
-        //bind the texture
-        glBindTexture(GL_TEXTURE_2D, 1001);
+        
 
-        //tell opengl how to unpack bytes
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, read.getWidth(), read.getHeight(), 0, GL_RGB8, GL_UNSIGNED_BYTE, buf);
-
-        //set the texture parameters, can be GL_LINEAR or GL_NEAREST
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-        // Generate Mip Map
-        glGenerateMipmap(GL_TEXTURE_2D);
     }
 
     void initGL() {
@@ -172,11 +155,11 @@ public class ExemploBasico3D {
      * Executa o loop principal.
      */
     private void execution() {
+        player = new Personagem(new Ponto(0,0,0), true);
         // This is the main loop
         while (!glfwWindowShouldClose(glfwWindowAddress) && isRuinning) {
             animate.startCounter();
 
-            keyListenerExample();
             display();
             glfwPollEvents();
 
@@ -185,22 +168,7 @@ public class ExemploBasico3D {
         }
     }
 
-    /**
-     * This is an example on how to use the implemented {@link KeyListener}
-     * In this example, color is set from red to blue while the SPACE key is pressed on the keyboard
-     */
-    private void keyListenerExample() {
-        if (KeyListener.getInstance().isKeyPressed(GLFW_KEY_ESCAPE)) {
-            isRuinning = false;
-        }
-        if (KeyListener.getInstance().isKeyPressed(GLFW_KEY_Q)) {
-            ModoDeProjecao = (ModoDeProjecao + 1) % 2;
-        }
-        if (KeyListener.getInstance().isKeyPressed(GLFW_KEY_P)) {
-            ModoDeExibicao = (ModoDeExibicao + 1) % 2;
-            initGL();
-        }
-    }
+
 
     /**
      * Desenha o conteudo do frame a cada iteracao do loop principal.
@@ -218,17 +186,10 @@ public class ExemploBasico3D {
 
         desenhaParede();
 
-        glPushMatrix();
-        glTranslatef(10.0f, 0f, 0.0f);
-        //rotacionaAmbiente();
-        glRotatef(angulo, 0, 0.5f, 0);
-        glColor3f(0.5f, 0.0f, 0.0f); // Vermelho
-        //glutSolidCube(2);
-        DesenhaParalelepipedo();
-        glPopMatrix();
+        player.draw();
 
 
-        glPushMatrix();
+        /*glPushMatrix();
         glTranslatef(-4.0f, 0f, 2.0f);
         //rotacionaAmbiente();
         glRotatef(angulo, 0, 0.5f, 0);
@@ -255,7 +216,7 @@ public class ExemploBasico3D {
         DesenhaCubo(1);
         glPopMatrix();
 
-        //DesenhaPiso();
+        //DesenhaPiso();*/
         glfwSwapBuffers(glfwWindowAddress);
     }
 
