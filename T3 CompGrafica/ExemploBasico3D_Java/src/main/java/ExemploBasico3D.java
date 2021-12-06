@@ -1,29 +1,26 @@
-
-
 import glfw.listener.KeyListener;
 import logic.Animate;
-//import logic.Ponto;
-
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.system.CallbackI;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.Random;
 
+import static de.damios.guacamole.gdx.StartOnFirstThreadHelper.startNewJvmIfRequired;
 import static geometry.configuration.World.setCoordinatePlane;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL12.GL_UNSIGNED_INT_8_8_8_8_REV;
+import static org.lwjgl.opengl.GL30C.glGenerateMipmap;
 import static org.lwjgl.system.MemoryUtil.NULL;
-
-import static de.damios.guacamole.gdx.StartOnFirstThreadHelper.startNewJvmIfRequired;
 
 public class ExemploBasico3D {
     private int width;
@@ -49,8 +46,8 @@ public class ExemploBasico3D {
     private Vector3f rotacaoAmbiente = new Vector3f(20f, 0f, 0f);
     private boolean isRuinning = true;
 
-    private static final int  NUM_DE_TEXTURAS = 2;
-    private static int[] texturas = {1001,1011};
+    private static final int NUM_DE_TEXTURAS = 2;
+    private static int[] texturas = {1001, 1011};
 
     private ExemploBasico3D() {
         this.width = DEFAULT_WIDTH;
@@ -64,7 +61,7 @@ public class ExemploBasico3D {
         return INSTANCE;
     }
 
-    public void run() {
+    public void run() throws IOException {
         init();
         execution();
         terminateGracefully();
@@ -78,7 +75,7 @@ public class ExemploBasico3D {
         this.height = height;
     }
 
-    private void init() {
+    private void init() throws IOException {
         // Setup an error callback. The default implementation
         // will print the error message in System.err.
         GLFWErrorCallback.createPrint(System.err).set();
@@ -114,65 +111,58 @@ public class ExemploBasico3D {
         //WindowResizeListener.getInstance().invoke(glfwWindowAddress, width, height);
         reshape(width, height);
 
+        loadTexture();
         initGL();
     }
+
     //A minha versao java do codigo do matheus ficou meio porca,
     //entao acabei achando uma outra maneira q tlvz faca mais sentido para o java: https://stackoverflow.com/questions/41901468/load-a-texture-within-opengl-and-lwjgl3-in-java/41902221
     // obviamente temos q achar um jeito de mascarar ela
     //se conseguir fazer a do matheus funcionar, melhor.
     //detalhe: o PNGDecoder eh de uma biblioteca externa, vale a pena adicionar? link: https://mvnrepository.com/artifact/org.l33tlabs.twl/pngdecoder/1.0
-    /*public static Texture loadTexture(String fileName){
+    static int[] textures = {1001};
 
-        //load png file
-        PNGDecoder decoder = new PNGDecoder(ClassName.class.getResourceAsStream(fileName));
+    public static void loadTexture() throws IOException {
+        glEnable(GL_TEXTURE_2D);
+        glGenTextures(textures);
 
-        //create a byte buffer big enough to store RGBA values
-        ByteBuffer buffer = ByteBuffer.allocateDirect(4 * decoder.getWidth() * decoder.getHeight());
-
-        //decode
-        decoder.decode(buffer, decoder.getWidth() * 4, PNGDecoder.Format.RGBA);
-
-        //flip the buffer so its ready to read
-        buffer.flip();
-
-        //create a texture
-        int id = glGenTextures();
+        BufferedImage read = ImageIO.read(new File("/home/deividsantos/faculdade/T3-Comp-Grafica/T3 CompGrafica/ExemploBasico3D_Java/src/main/resources/img.png"));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(read, "png", baos);
+        baos.flush();
+        byte[] imageInByte = baos.toByteArray();
+        baos.close();
+        ByteBuffer buf = ByteBuffer.wrap(imageInByte);
 
         //bind the texture
-        glBindTexture(GL_TEXTURE_2D, id);
+        glBindTexture(GL_TEXTURE_2D, 1001);
 
         //tell opengl how to unpack bytes
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-        //set the texture parameters, can be GL_LINEAR or GL_NEAREST
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, read.getWidth(), read.getHeight(), 0, GL_RGB8, GL_UNSIGNED_BYTE, buf);
 
-        //upload texture
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, decoder.getWidth(), decoder.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+        //set the texture parameters, can be GL_LINEAR or GL_NEAREST
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
         // Generate Mip Map
         glGenerateMipmap(GL_TEXTURE_2D);
+    }
 
-        return new Texture(id);
-    }*/
-
-    void initGL(){
+    void initGL() {
         glClearColor(0.0f, 0.0f, 1.0f, 1.0f); // Fundo de tela preto
-   
+
         glShadeModel(GL_SMOOTH);
         //glShadeModel(GL_FLAT);
-        glColorMaterial ( GL_FRONT, GL_AMBIENT_AND_DIFFUSE );
+        glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
         if (ModoDeExibicao == 1) // Faces Preenchidas??
         {
             glEnable(GL_DEPTH_TEST);
-            glEnable (GL_CULL_FACE );
+            glEnable(GL_CULL_FACE);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
-        else
-        {
+        } else {
             glEnable(GL_DEPTH_TEST);
-            glEnable (GL_CULL_FACE );
+            glEnable(GL_CULL_FACE);
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
         glEnable(GL_NORMALIZE);
@@ -196,9 +186,9 @@ public class ExemploBasico3D {
     }
 
     /**
-    * This is an example on how to use the implemented {@link KeyListener}
-    * In this example, color is set from red to blue while the SPACE key is pressed on the keyboard
-    * */
+     * This is an example on how to use the implemented {@link KeyListener}
+     * In this example, color is set from red to blue while the SPACE key is pressed on the keyboard
+     */
     private void keyListenerExample() {
         if (KeyListener.getInstance().isKeyPressed(GLFW_KEY_ESCAPE)) {
             isRuinning = false;
@@ -217,59 +207,110 @@ public class ExemploBasico3D {
      */
     private void display() {
 
-        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //DefineLuz();
 
         PosicUser();
-        
         glMatrixMode(GL_MODELVIEW);
 
         DesenhaPiso();
 
+        desenhaParede();
+
         glPushMatrix();
-            glTranslatef ( 10.0f, 0f, 0.0f );
-            //rotacionaAmbiente();
-            glRotatef(angulo,0,0.5f,0);
-            glColor3f(0.5f,0.0f,0.0f); // Vermelho
-            //glutSolidCube(2);
-            DesenhaParalelepipedo();
+        glTranslatef(10.0f, 0f, 0.0f);
+        //rotacionaAmbiente();
+        glRotatef(angulo, 0, 0.5f, 0);
+        glColor3f(0.5f, 0.0f, 0.0f); // Vermelho
+        //glutSolidCube(2);
+        DesenhaParalelepipedo();
         glPopMatrix();
 
-        
+
         glPushMatrix();
-            //glTranslatef ( -4.0f, 0f, 2.0f );
-            //rotacionaAmbiente();
-            glRotatef(angulo,0,0.5f,0);
-            glColor3f(0.6156862745f, 0.8980392157f, 0.9803921569f); // Azul claro
-            //glutSolidCube(2);
-            DesenhaParalelepipedo();
+        glTranslatef(-4.0f, 0f, 2.0f);
+        //rotacionaAmbiente();
+        glRotatef(angulo, 0, 0.5f, 0);
+        glColor3f(0.6156862745f, 0.8980392157f, 0.9803921569f); // Azul claro
+        //glutSolidCube(2);
+        DesenhaParalelepipedo();
         glPopMatrix();
-        
-        glPopMatrix();
-        /*
-        glPushMatrix();
-            //glTranslatef ( 5.0f, 0.0f, 3.0f );
-            glRotatef(angulo,0,1,0);
-            glColor3f(0.5f,0.0f,0.0f); // Vermelho
-            //glutSolidCube(2);
-            DesenhaCubo(1);
+
         glPopMatrix();
 
         glPushMatrix();
-            //glTranslatef ( -4.0f, 0.0f, 2.0f );
-            glRotatef(angulo,0,1,0);
-            glColor3f(0.6156862745f, 0.8980392157f, 0.9803921569f); // Azul claro
-            //glutSolidCube(2);
-            DesenhaCubo(1);
+        //glTranslatef ( 5.0f, 0.0f, 3.0f );
+        glRotatef(angulo, 0, 1, 0);
+        glColor3f(0.5f, 0.0f, 0.0f); // Vermelho
+        //glutSolidCube(2);
+        DesenhaCubo(1);
         glPopMatrix();
-        */
+
+        glPushMatrix();
+        //glTranslatef ( -4.0f, 0.0f, 2.0f );
+        glRotatef(angulo, 0, 1, 0);
+        glColor3f(0.6156862745f, 0.8980392157f, 0.9803921569f); // Azul claro
+        //glutSolidCube(2);
+        DesenhaCubo(1);
+        glPopMatrix();
+
         //DesenhaPiso();
-
         glfwSwapBuffers(glfwWindowAddress);
     }
 
-    private void rotacionaAmbiente(){
+    private void desenhaParede() {
+        glPushMatrix();
+        glTranslated(-12.5, 0, -10);
+        for (int i = 0; i < 15; i++) {
+            glPushMatrix();
+            for (int j = -12; j < 13; j++) {
+                desenhaParedao();
+                glTranslated(1, 0, 0);
+            }
+            glPopMatrix();
+            glTranslated(0, 1, 0);
+        }
+        glPopMatrix();
+    }
+
+    private void desenhaParedao() {
+        glBindTexture(GL_TEXTURE_2D, 1001);
+
+        glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5f, -0.5f, 0.5f);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(0.5f, -0.5f, 0.5f);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(0.5f, 0.5f, 0.5f);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f, 0.5f, 0.5f);
+
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5f, -0.5f, -0.5f);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5f, 0.5f, -0.5f);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(0.5f, 0.5f, -0.5f);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(0.5f, -0.5f, -0.5f);
+
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f, 0.5f, -0.5f);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5f, 0.5f, 0.5f);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(0.5f, 0.5f, 0.5f);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(0.5f, 0.5f, -0.5f);
+
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5f, -0.5f, -0.5f);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(0.5f, -0.5f, -0.5f);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(0.5f, -0.5f, 0.5f);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5f, -0.5f, 0.5f);
+
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(0.5f, -0.5f, -0.5f);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(0.5f, 0.5f, -0.5f);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(0.5f, 0.5f, 0.5f);
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(0.5f, -0.5f, 0.5f);
+
+        glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5f, -0.5f, -0.5f);
+        glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5f, -0.5f, 0.5f);
+        glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5f, 0.5f, 0.5f);
+        glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f, 0.5f, -0.5f);
+        glEnd();
+    }
+
+    private void rotacionaAmbiente() {
         glRotated(rotacaoAmbiente.x, 1, 0, 0);
         glRotated(rotacaoAmbiente.y, 0, 1, 0);
         glRotated(rotacaoAmbiente.z, 0, 0, 1);
@@ -278,18 +319,17 @@ public class ExemploBasico3D {
     // **********************************************************************
     //  void DefineLuz(void)
     // **********************************************************************
-    void DefineLuz()
-    {
+    void DefineLuz() {
         // Define cores para um objeto dourado
-        float LuzAmbiente[]   = {0.4f, 0.4f, 0.4f } ;
-        float LuzDifusa[]   = {0.7f, 0.7f, 0.7f};
-        float LuzEspecular[] = {0.9f, 0.9f, 0.9f };
-        float PosicaoLuz0[]  = {0.0f, 3.0f, 5.0f };  // Posi��o da Luz
+        float LuzAmbiente[] = {0.4f, 0.4f, 0.4f};
+        float LuzDifusa[] = {0.7f, 0.7f, 0.7f};
+        float LuzEspecular[] = {0.9f, 0.9f, 0.9f};
+        float PosicaoLuz0[] = {0.0f, 3.0f, 5.0f};  // Posi��o da Luz
         float Especularidade[] = {1.0f, 1.0f, 1.0f};
 
         // ****************  Fonte de Luz 0
 
-        glEnable ( GL_COLOR_MATERIAL );
+        glEnable(GL_COLOR_MATERIAL);
 
         // Habilita o uso de ilumina��o
         glEnable(GL_LIGHTING);
@@ -298,26 +338,26 @@ public class ExemploBasico3D {
         glLightModelfv(GL_LIGHT_MODEL_AMBIENT, LuzAmbiente);
         // Define os parametros da luz n�mero Zero
         glLightfv(GL_LIGHT0, GL_AMBIENT, LuzAmbiente);
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, LuzDifusa  );
-        glLightfv(GL_LIGHT0, GL_SPECULAR, LuzEspecular  );
-        glLightfv(GL_LIGHT0, GL_POSITION, PosicaoLuz0 );
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, LuzDifusa);
+        glLightfv(GL_LIGHT0, GL_SPECULAR, LuzEspecular);
+        glLightfv(GL_LIGHT0, GL_POSITION, PosicaoLuz0);
         glEnable(GL_LIGHT0);
 
         // Ativa o "Color Tracking"
         glEnable(GL_COLOR_MATERIAL);
 
         // Define a reflectancia do material
-        glMaterialfv(GL_FRONT,GL_SPECULAR, Especularidade);
+        glMaterialfv(GL_FRONT, GL_SPECULAR, Especularidade);
 
         // Define a concentra��oo do brilho.
         // Quanto maior o valor do Segundo parametro, mais
         // concentrado ser� o brilho. (Valores v�lidos: de 0 a 128)
-        glMateriali(GL_FRONT,GL_SHININESS,51);
+        glMateriali(GL_FRONT, GL_SHININESS, 51);
     }
 
     /**
      * Cria e configura a instancia da janela grafica.
-     * 
+     *
      * @return endereco da janela
      */
     private long createAndConfigureWindow() {
@@ -342,11 +382,10 @@ public class ExemploBasico3D {
     //		trata o redimensionamento da janela OpenGL
     //
     // **********************************************************************
-    void reshape( int w, int h )
-    {
+    void reshape(int w, int h) {
 
         // Evita divis�o por zero, no caso de uam janela com largura 0.
-        if(h == 0) h = 1;
+        if (h == 0) h = 1;
         // Ajusta a rela��o entre largura e altura para evitar distor��o na imagem.
         // Veja fun��o "PosicUser".
         AspectRatio = 1.0f * w / h;
@@ -388,19 +427,18 @@ public class ExemploBasico3D {
     // **********************************************************************
     //  void PosicUser()
     // **********************************************************************
-    void PosicUser()
-    {
+    void PosicUser() {
 
         // Define os par�metros da proje��o Perspectiva
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         // Define o volume de visualiza��o sempre a partir da posicao do
         // observador
-        if (ModoDeProjecao == 0){
+        if (ModoDeProjecao == 0) {
             glOrtho(-10, 10, -10, 10, 0, 50); // Projecao paralela Orthografica
-        }else {
+        } else {
             //gluPerspective(90,AspectRatio,0.01,50); // Projecao perspectiva
-            perspective(90,AspectRatio,0.01,50);
+            perspective(90, AspectRatio, 0.01, 50);
         }
 
         glMatrixMode(GL_MODELVIEW);
@@ -414,72 +452,70 @@ public class ExemploBasico3D {
         //rotacionaAmbiente();
     }
 
-    void perspective(double fieldOfView, double aspectRatio, double zNear, double zFar){
-        double fH = Math.tan( (fieldOfView / 360.0f * 3.14159f) ) * zNear;
+    void perspective(double fieldOfView, double aspectRatio, double zNear, double zFar) {
+        double fH = Math.tan((fieldOfView / 360.0f * 3.14159f)) * zNear;
         double fW = fH * aspectRatio;
-        glFrustum( -fW, fW, -fH, fH, zNear, zFar );
+        glFrustum(-fW, fW, -fH, fH, zNear, zFar);
     }
 
     // Desenhos
     // **********************************************************************
     //  void DesenhaCubo()
     // **********************************************************************
-    void DesenhaCubo(float tamAresta)
-    {
-        glBegin ( GL_QUADS );
+    void DesenhaCubo(float tamAresta) {
+        glBegin(GL_QUADS);
         // Front Face
-        glNormal3f(0,0,1);
-        glVertex3f(-tamAresta/2, -tamAresta/2,  tamAresta/2);
-        glVertex3f( tamAresta/2, -tamAresta/2,  tamAresta/2);
-        glVertex3f( tamAresta/2,  tamAresta/2,  tamAresta/2);
-        glVertex3f(-tamAresta/2,  tamAresta/2,  tamAresta/2);
+        glNormal3f(0, 0, 1);
+        glVertex3f(-tamAresta / 2, -tamAresta / 2, tamAresta / 2);
+        glVertex3f(tamAresta / 2, -tamAresta / 2, tamAresta / 2);
+        glVertex3f(tamAresta / 2, tamAresta / 2, tamAresta / 2);
+        glVertex3f(-tamAresta / 2, tamAresta / 2, tamAresta / 2);
         // Back Face
-        glNormal3f(0,0,-1);
-        glVertex3f(-tamAresta/2, -tamAresta/2, -tamAresta/2);
-        glVertex3f(-tamAresta/2,  tamAresta/2, -tamAresta/2);
-        glVertex3f( tamAresta/2,  tamAresta/2, -tamAresta/2);
-        glVertex3f( tamAresta/2, -tamAresta/2, -tamAresta/2);
+        glNormal3f(0, 0, -1);
+        glVertex3f(-tamAresta / 2, -tamAresta / 2, -tamAresta / 2);
+        glVertex3f(-tamAresta / 2, tamAresta / 2, -tamAresta / 2);
+        glVertex3f(tamAresta / 2, tamAresta / 2, -tamAresta / 2);
+        glVertex3f(tamAresta / 2, -tamAresta / 2, -tamAresta / 2);
         // Top Face
-        glNormal3f(0,1,0);
-        glVertex3f(-tamAresta/2,  tamAresta/2, -tamAresta/2);
-        glVertex3f(-tamAresta/2,  tamAresta/2,  tamAresta/2);
-        glVertex3f( tamAresta/2,  tamAresta/2,  tamAresta/2);
-        glVertex3f( tamAresta/2,  tamAresta/2, -tamAresta/2);
+        glNormal3f(0, 1, 0);
+        glVertex3f(-tamAresta / 2, tamAresta / 2, -tamAresta / 2);
+        glVertex3f(-tamAresta / 2, tamAresta / 2, tamAresta / 2);
+        glVertex3f(tamAresta / 2, tamAresta / 2, tamAresta / 2);
+        glVertex3f(tamAresta / 2, tamAresta / 2, -tamAresta / 2);
         // Bottom Face
-        glNormal3f(0,-1,0);
-        glVertex3f(-tamAresta/2, -tamAresta/2, -tamAresta/2);
-        glVertex3f( tamAresta/2, -tamAresta/2, -tamAresta/2);
-        glVertex3f( tamAresta/2, -tamAresta/2,  tamAresta/2);
-        glVertex3f(-tamAresta/2, -tamAresta/2,  tamAresta/2);
+        glNormal3f(0, -1, 0);
+        glVertex3f(-tamAresta / 2, -tamAresta / 2, -tamAresta / 2);
+        glVertex3f(tamAresta / 2, -tamAresta / 2, -tamAresta / 2);
+        glVertex3f(tamAresta / 2, -tamAresta / 2, tamAresta / 2);
+        glVertex3f(-tamAresta / 2, -tamAresta / 2, tamAresta / 2);
         // Right face
-        glNormal3f(1,0,0);
-        glVertex3f( tamAresta/2, -tamAresta/2, -tamAresta/2);
-        glVertex3f( tamAresta/2,  tamAresta/2, -tamAresta/2);
-        glVertex3f( tamAresta/2,  tamAresta/2,  tamAresta/2);
-        glVertex3f( tamAresta/2, -tamAresta/2,  tamAresta/2);
+        glNormal3f(1, 0, 0);
+        glVertex3f(tamAresta / 2, -tamAresta / 2, -tamAresta / 2);
+        glVertex3f(tamAresta / 2, tamAresta / 2, -tamAresta / 2);
+        glVertex3f(tamAresta / 2, tamAresta / 2, tamAresta / 2);
+        glVertex3f(tamAresta / 2, -tamAresta / 2, tamAresta / 2);
         // Left Face
-        glNormal3f(-1,0,0);
-        glVertex3f(-tamAresta/2, -tamAresta/2, -tamAresta/2);
-        glVertex3f(-tamAresta/2, -tamAresta/2,  tamAresta/2);
-        glVertex3f(-tamAresta/2,  tamAresta/2,  tamAresta/2);
-        glVertex3f(-tamAresta/2,  tamAresta/2, -tamAresta/2);
+        glNormal3f(-1, 0, 0);
+        glVertex3f(-tamAresta / 2, -tamAresta / 2, -tamAresta / 2);
+        glVertex3f(-tamAresta / 2, -tamAresta / 2, tamAresta / 2);
+        glVertex3f(-tamAresta / 2, tamAresta / 2, tamAresta / 2);
+        glVertex3f(-tamAresta / 2, tamAresta / 2, -tamAresta / 2);
         glEnd();
 
     }
 
-    void DesenhaParalelepipedo()
-    {
+    void DesenhaParalelepipedo() {
         glPushMatrix();
-            glTranslatef(0,0,0);
-            glScalef(2,1,3);
-            //glutSolidCube(2);
-            DesenhaCubo(1);
+        glTranslatef(0, 0, 0);
+        glScalef(2, 1, 3);
+        //glutSolidCube(2);
+        DesenhaCubo(1);
         glPopMatrix();
         glPushMatrix();
-            glTranslatef(0,0,0.8f);
-            glScalef(0.5f,5,0.5f);
-            //glutSolidCube(2);
-            DesenhaCubo(1);
+        glTranslatef(0, 0, 0.8f);
+        glScalef(0.5f, 5, 0.5f);
+        //glutSolidCube(2);
+        DesenhaCubo(1);
         glPopMatrix();
     }
 
@@ -489,51 +525,45 @@ public class ExemploBasico3D {
     // Eh possivel definir a cor da borda e do interior do piso
     // O ladrilho tem largula 1, centro no (0,0,0) e est� sobre o plano XZ
     // **********************************************************************
-    void DesenhaLadrilho(int corBorda, int corDentro)
-    {
+    void DesenhaLadrilho(int corBorda, int corDentro) {
         //defineCor(corDentro);// desenha QUAD preenchido
-        glColor3f(1,1,1);
-        glBegin ( GL_QUADS );
-            glNormal3f(0,1,0);
-            glVertex3f(-0.5f,  0.0f, -0.5f);
-            glVertex3f(-0.5f,  0.0f,  0.5f);
-            glVertex3f( 0.5f,  0.0f,  0.5f);
-            glVertex3f( 0.5f,  0.0f, -0.5f);
+        glColor3f(1, 1, 1);
+        glBegin(GL_QUADS);
+        glNormal3f(0, 1, 0);
+        glVertex3f(-0.5f, 0.0f, -0.5f);
+        glVertex3f(-0.5f, 0.0f, 0.5f);
+        glVertex3f(0.5f, 0.0f, 0.5f);
+        glVertex3f(0.5f, 0.0f, -0.5f);
         glEnd();
-        
+
         //defineCor(corBorda);
-        glColor3f(0,1,0);
+        glColor3f(0, 1, 0);
 
-        glBegin ( GL_LINE_STRIP );
-            glNormal3f(0,1,0);
-            glVertex3f(-0.5f,  0.0f, -0.5f);
-            glVertex3f(-0.5f,  0.0f,  0.5f);
-            glVertex3f( 0.5f,  0.0f,  0.5f);
-            glVertex3f( 0.5f,  0.0f, -0.5f);
+        glBegin(GL_LINE_STRIP);
+        glNormal3f(0, 1, 0);
+        glVertex3f(-0.5f, 0.0f, -0.5f);
+        glVertex3f(-0.5f, 0.0f, 0.5f);
+        glVertex3f(0.5f, 0.0f, 0.5f);
+        glVertex3f(0.5f, 0.0f, -0.5f);
         glEnd();
-        
-
     }
 
     // **********************************************************************
     //
     //
     // **********************************************************************
-    void DesenhaPiso()
-    {
+    void DesenhaPiso() {
         Random rand = new Random(100); // usa uma semente fixa para gerar sempre as mesma cores no piso
 
         glPushMatrix();
         //glTranslated(CantoEsquerdo.x, CantoEsquerdo.y, CantoEsquerdo.z);
-        glTranslated(-20, 0, -20);
+        glTranslated(-12.5, 0, -43.5);
         //glRotated(30, 1, 0, 0);
-        for(int x=0; x<40;x++)
-        {
+        for (int x = 0; x < 25; x++) {
             glPushMatrix();
             //rotacionaAmbiente();
-            for(int z=0; z<40;z++)
-            { 
-                DesenhaLadrilho(0, rand.nextInt(40));
+            for (int z = 0; z < 50; z++) {
+                DesenhaLadrilho(0, rand.nextInt(50));
                 glTranslated(0, 0, 1);
             }
             glPopMatrix();
@@ -541,8 +571,8 @@ public class ExemploBasico3D {
         }
         glPopMatrix();
     }
-    
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws IOException {
         // Starts a new JVM if the application was started on macOS without the
         // -XstartOnFirstThread argument.
         if (startNewJvmIfRequired()) {
