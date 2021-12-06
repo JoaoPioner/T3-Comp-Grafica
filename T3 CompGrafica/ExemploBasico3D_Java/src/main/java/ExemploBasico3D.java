@@ -47,7 +47,7 @@ public class ExemploBasico3D {
     private boolean isRuinning = true;
 
     private static final int NUM_DE_TEXTURAS = 2;
-    private static int[] texturas = {1001, 1011};
+    private static int[] texturas = {1001};
 
     private ExemploBasico3D() {
         this.width = DEFAULT_WIDTH;
@@ -120,11 +120,10 @@ public class ExemploBasico3D {
     // obviamente temos q achar um jeito de mascarar ela
     //se conseguir fazer a do matheus funcionar, melhor.
     //detalhe: o PNGDecoder eh de uma biblioteca externa, vale a pena adicionar? link: https://mvnrepository.com/artifact/org.l33tlabs.twl/pngdecoder/1.0
-    static int[] textures = {1001};
 
     public static void loadTexture() throws IOException {
         glEnable(GL_TEXTURE_2D);
-        glGenTextures(textures);
+        glGenTextures(texturas);
 
         BufferedImage read = ImageIO.read(new File("/home/deividsantos/faculdade/T3-Comp-Grafica/T3 CompGrafica/ExemploBasico3D_Java/src/main/resources/img.png"));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
