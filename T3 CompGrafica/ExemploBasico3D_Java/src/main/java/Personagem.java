@@ -43,7 +43,7 @@ public class Personagem {
 
     void draw() {
         glPushMatrix();
-        glTranslatef(posicao.x, posicao.y, posicao.z);
+        glTranslatef(posicao.x, posicao.y + 0.5f, posicao.z);
         glRotatef(angulo, 0, 1, 0);
         glColor3f(1, 0, 0);
         keyListenerExample();
@@ -53,15 +53,16 @@ public class Personagem {
 
     void DesenhaParalelepipedo() {
         glPushMatrix();
-        glTranslatef(0, 0, 0);
-        glScalef(2, 1, 3);
+        glTranslatef(0, 1, 0);
+        glScalef(3, 1, 2);
         //glutSolidCube(2);
         DesenhaCubo(1);
         glPopMatrix();
         glPushMatrix();
-        glTranslatef(0, 0, 0.8f);
-        glScalef(0.5f, 5, 0.5f);
+        glTranslatef(-0.8f, 2.5f, 0);
+        glScalef(0.8f, 2.5f, 0.8f);
         //glutSolidCube(2);
+        glColor3f(1, 1, 0);
         DesenhaCubo(1);
         glPopMatrix();
     }
