@@ -113,8 +113,6 @@ public class ExemploBasico3D {
         initGL();
     }
 
-    static int[] textures = {1001, 1011};
-
     public static void loadTexture() throws IOException {
         //A minha versao java do codigo do matheus ficou meio porca,
         //entao acabei achando uma outra maneira q tlvz faca mais sentido para o java: https://stackoverflow.com/questions/41901468/load-a-texture-within-opengl-and-lwjgl3-in-java/41902221
@@ -162,7 +160,7 @@ public class ExemploBasico3D {
     }
 
     void initGL() {
-        glClearColor(0.0f, 0.0f, 1.0f, 1.0f); // Fundo de tela preto
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Fundo de tela preto
 
         glShadeModel(GL_SMOOTH);
         //glShadeModel(GL_FLAT);
