@@ -131,7 +131,7 @@ public class ExemploBasico3D {
         int largura = read.getWidth();
         int altura = read.getHeight();
         ByteBuffer imageBuffer = ByteBuffer.allocateDirect(4 * read.getWidth() * read.getHeight());
-        byte buffer[] = (byte[]) read.getRaster().getDataElements(0, 0, read.getWidth(), read.getHeight(), null);
+        byte[] buffer = (byte[]) read.getRaster().getDataElements(0, 0, read.getWidth(), read.getHeight(), null);
         imageBuffer.clear();
         imageBuffer.put(buffer);
         imageBuffer.rewind();
@@ -149,7 +149,7 @@ public class ExemploBasico3D {
         int largura2 = read2.getWidth();
         int altura2 = read2.getHeight();
         ByteBuffer imageBuffer2 = ByteBuffer.allocateDirect(4 * read2.getWidth() * read2.getHeight());
-        byte buffer2[] = (byte[]) read2.getRaster().getDataElements(0, 0, read2.getWidth(), read2.getHeight(), null);
+        byte[] buffer2 = (byte[]) read2.getRaster().getDataElements(0, 0, read2.getWidth(), read2.getHeight(), null);
         imageBuffer2.clear();
         imageBuffer2.put(buffer2);
         imageBuffer2.rewind();
