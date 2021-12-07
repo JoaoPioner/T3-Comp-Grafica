@@ -33,9 +33,9 @@ public class Animate {
             fps = (int) (nFrames / tempoTotal);
 
             System.out.println("------------------------------------------");
-            System.out.println(String.format("Tempo Acumulado: %.2f  segundos.", tempoTotal));
-            System.out.println(String.format("Nros de Frames sem desenho: %d", nFrames));
-            System.out.println(String.format("FPS(sem desenho): %d", fps));
+            System.out.printf("Tempo Acumulado: %.2f  segundos.%n", tempoTotal);
+            System.out.printf("Nros de Frames sem desenho: %d%n", nFrames);
+            System.out.printf("FPS(sem desenho): %d%n", fps);
 
             tempoTotal = 0;
             nFrames = 0;

@@ -2,47 +2,41 @@ import glfw.listener.KeyListener;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL11.glPopMatrix;
 
 public class Personagem {
-    //public float cor;
-
-    /*public Ponto v1;
-    public Ponto v2;
-    public Ponto v3;
-    public Ponto v4;
-    public Ponto v5;
-    public Ponto v6;*/
-
     public Ponto posicao;
+    public Ponto direcao;
     public float angulo = 0;
-    public float spd = 2.5f;
+    public float spd = 0.5f;
     public boolean jogador;
+
+    public Ponto vetorDir;
 
     //para o paralelepipedo foi necessario soh 6 pts. nao tenho ctz se eu soh preciso de 6 tbm aqui.
 
-    public Personagem(Ponto posicao,boolean jogador) {
-        //this.cor = cor;
-        /*this.v1 = v1;
-        this.v2 = v2;
-        this.v3 = v3;
-        this.v4 = v4;
-        this.v5 = v5;
-        this.v6 = v6;*/
+    public Personagem(Ponto posicao, boolean jogador) {
         this.posicao = posicao;
         this.jogador = jogador;
+        this.direcao = new Ponto(0, 0, 1);
     }
 
     void keyListenerExample() {
-        if(jogador) {
+        if (jogador) {
             if (KeyListener.getInstance().isKeyPressed(GLFW_KEY_A)) {
-                posicao.x += spd;
+                if (angulo > 360) {
+                    angulo = 0;
+                }
+                angulo += 1;
             }
             if (KeyListener.getInstance().isKeyPressed(GLFW_KEY_D)) {
-                posicao.x -= spd;
+                if (angulo < 0) {
+                    angulo = 360;
+                }
+                angulo -= 1;
             }
             if (KeyListener.getInstance().isKeyPressed(GLFW_KEY_W)) {
-                posicao.z -= spd;
+                posicao.z -= spd * Math.sin(angulo * 3.14159 / 180);
+                posicao.x += spd * Math.cos(angulo * 3.14159 / 180);
             }
         }
     }
@@ -50,7 +44,8 @@ public class Personagem {
     void draw() {
         glPushMatrix();
         glTranslatef(posicao.x, posicao.y, posicao.z);
-        glColor3f (0, 0.2f, 1);
+        glRotatef(angulo, 0, 1, 0);
+        glColor3f(1, 0, 0);
         keyListenerExample();
         DesenhaParalelepipedo();
         glPopMatrix();

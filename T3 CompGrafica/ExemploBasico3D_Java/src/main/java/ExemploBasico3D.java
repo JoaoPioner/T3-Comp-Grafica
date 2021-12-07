@@ -216,35 +216,6 @@ public class ExemploBasico3D {
 
         player.draw();
 
-
-        /*glPushMatrix();
-        glTranslatef(-4.0f, 0f, 2.0f);
-        //rotacionaAmbiente();
-        glRotatef(angulo, 0, 0.5f, 0);
-        glColor3f(0.6156862745f, 0.8980392157f, 0.9803921569f); // Azul claro
-        //glutSolidCube(2);
-        DesenhaParalelepipedo();
-        glPopMatrix();
-
-        glPopMatrix();
-
-        glPushMatrix();
-        //glTranslatef ( 5.0f, 0.0f, 3.0f );
-        glRotatef(angulo, 0, 1, 0);
-        glColor3f(0.5f, 0.0f, 0.0f); // Vermelho
-        //glutSolidCube(2);
-        DesenhaCubo(1);
-        glPopMatrix();
-
-        glPushMatrix();
-        //glTranslatef ( -4.0f, 0.0f, 2.0f );
-        glRotatef(angulo, 0, 1, 0);
-        glColor3f(0.6156862745f, 0.8980392157f, 0.9803921569f); // Azul claro
-        //glutSolidCube(2);
-        DesenhaCubo(1);
-        glPopMatrix();
-
-        //DesenhaPiso();*/
         glfwSwapBuffers(glfwWindowAddress);
     }
 
