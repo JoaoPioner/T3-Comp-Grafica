@@ -6,7 +6,6 @@ import org.lwjgl.opengl.GL;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -18,8 +17,6 @@ import static geometry.configuration.World.setCoordinatePlane;
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.GL_UNSIGNED_INT_8_8_8_8_REV;
-import static org.lwjgl.opengl.GL30C.glGenerateMipmap;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class ExemploBasico3D {
@@ -46,12 +43,9 @@ public class ExemploBasico3D {
     private Vector3f rotacaoAmbiente = new Vector3f(20f, 0f, 0f);
     private boolean isRuinning = true;
 
-<<<<<<< HEAD
     Personagem player;
-=======
     private static final int NUM_DE_TEXTURAS = 2;
-    private static int[] texturas = {1001};
->>>>>>> b7e62c4440d49aa0ab526a8cacf3d55429761ba4
+    private static int[] texturas = {1001, 1011};
 
     private ExemploBasico3D() {
         this.width = DEFAULT_WIDTH;
@@ -119,34 +113,52 @@ public class ExemploBasico3D {
         initGL();
     }
 
-<<<<<<< HEAD
-    static int[] textures = {1001};
+    static int[] textures = {1001, 1011};
 
     public static void loadTexture() throws IOException {
-        glEnable(GL_TEXTURE_2D);
-=======
-    //A minha versao java do codigo do matheus ficou meio porca,
-    //entao acabei achando uma outra maneira q tlvz faca mais sentido para o java: https://stackoverflow.com/questions/41901468/load-a-texture-within-opengl-and-lwjgl3-in-java/41902221
-    // obviamente temos q achar um jeito de mascarar ela
-    //se conseguir fazer a do matheus funcionar, melhor.
-    //detalhe: o PNGDecoder eh de uma biblioteca externa, vale a pena adicionar? link: https://mvnrepository.com/artifact/org.l33tlabs.twl/pngdecoder/1.0
-
-    public static void loadTexture() throws IOException {
+        //A minha versao java do codigo do matheus ficou meio porca,
+        //entao acabei achando uma outra maneira q tlvz faca mais sentido para o java: https://stackoverflow.com/questions/41901468/load-a-texture-within-opengl-and-lwjgl3-in-java/41902221
+        // obviamente temos q achar um jeito de mascarar ela
+        //se conseguir fazer a do matheus funcionar, melhor.
+        //detalhe: o PNGDecoder eh de uma biblioteca externa, vale a pena adicionar? link: https://mvnrepository.com/artifact/org.l33tlabs.twl/pngdecoder/1.0
         glEnable(GL_TEXTURE_2D);
         glGenTextures(texturas);
->>>>>>> b7e62c4440d49aa0ab526a8cacf3d55429761ba4
+        glBindTexture(GL_TEXTURE_2D, 1001);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-        glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 
-        glGenTextures(textures);
+        BufferedImage read = ImageIO.read(new File("/home/deividsantos/faculdade/T3-Comp-Grafica/T3 CompGrafica/ExemploBasico3D_Java/src/main/resources/grama.jpg"));
+        int largura = read.getWidth();
+        int altura = read.getHeight();
+        ByteBuffer imageBuffer = ByteBuffer.allocateDirect(4 * read.getWidth() * read.getHeight());
+        byte buffer[] = (byte[]) read.getRaster().getDataElements(0, 0, read.getWidth(), read.getHeight(), null);
+        imageBuffer.clear();
+        imageBuffer.put(buffer);
+        imageBuffer.rewind();
 
-        glBindTexture(GL_TEXTURE_2D, textures[0]);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, largura, altura, 0, GL_RGB, GL_UNSIGNED_BYTE, imageBuffer);
 
-        BufferedImage read = ImageIO.read(new File("C:\\Users\\jjvpi\\Desktop\\T3 Grafica_git\\T3-Comp-Grafica\\T3 CompGrafica\\ExemploBasico3D_Java\\src\\main\\resources\\img.png"));
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        
+        glBindTexture(GL_TEXTURE_2D, 1011);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
+        BufferedImage read2 = ImageIO.read(new File("/home/deividsantos/faculdade/T3-Comp-Grafica/T3 CompGrafica/ExemploBasico3D_Java/src/main/resources/img.png"));
+        int largura2 = read2.getWidth();
+        int altura2 = read2.getHeight();
+        ByteBuffer imageBuffer2 = ByteBuffer.allocateDirect(4 * read2.getWidth() * read2.getHeight());
+        byte buffer2[] = (byte[]) read2.getRaster().getDataElements(0, 0, read2.getWidth(), read2.getHeight(), null);
+        imageBuffer2.clear();
+        imageBuffer2.put(buffer2);
+        imageBuffer2.rewind();
+
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, largura2, altura2, 0, GL_RGB, GL_UNSIGNED_BYTE, imageBuffer2);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
     void initGL() {
@@ -172,7 +184,7 @@ public class ExemploBasico3D {
      * Executa o loop principal.
      */
     private void execution() {
-        player = new Personagem(new Ponto(0,0,0), true);
+        player = new Personagem(new Ponto(0, 0, 0), true);
         // This is the main loop
         while (!glfwWindowShouldClose(glfwWindowAddress) && isRuinning) {
             animate.startCounter();
@@ -184,7 +196,6 @@ public class ExemploBasico3D {
             angulo += 0.1;
         }
     }
-
 
 
     /**
@@ -238,12 +249,17 @@ public class ExemploBasico3D {
     }
 
     private void desenhaParede() {
+        float larg = 0.04f;
+        float alt = 0.066f;
+        int aux = 0;
         glPushMatrix();
         glTranslated(-12.5, 0, -10);
         for (int i = 0; i < 15; i++) {
             glPushMatrix();
+            aux = 0;
             for (int j = -12; j < 13; j++) {
-                desenhaParedao();
+                desenhaParedao(larg, alt, i, aux);
+                aux = aux + 1;
                 glTranslated(1, 0, 0);
             }
             glPopMatrix();
@@ -252,40 +268,66 @@ public class ExemploBasico3D {
         glPopMatrix();
     }
 
-    private void desenhaParedao() {
-        glBindTexture(GL_TEXTURE_2D, 1001);
+    private void desenhaParedao(float larg, float alt, int x, int z) {
+
+        glBindTexture(GL_TEXTURE_2D, 1011);
 
         glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5f, -0.5f, 0.5f);
-        glTexCoord2f(1.0f, 0.0f); glVertex3f(0.5f, -0.5f, 0.5f);
-        glTexCoord2f(1.0f, 1.0f); glVertex3f(0.5f, 0.5f, 0.5f);
-        glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f, 0.5f, 0.5f);
+        glTexCoord2f(larg * z, alt * x);
+        glVertex3f(-0.5f, -0.5f, 0.5f);
+        glTexCoord2f(larg * z + larg, alt * x);
+        glVertex3f(0.5f, -0.5f, 0.5f);
+        glTexCoord2f(larg * z + larg, alt * x + alt);
+        glVertex3f(0.5f, 0.5f, 0.5f);
+        glTexCoord2f(larg * z, alt * x + alt);
+        glVertex3f(-0.5f, 0.5f, 0.5f);
 
-        glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5f, -0.5f, -0.5f);
-        glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5f, 0.5f, -0.5f);
-        glTexCoord2f(0.0f, 1.0f); glVertex3f(0.5f, 0.5f, -0.5f);
-        glTexCoord2f(0.0f, 0.0f); glVertex3f(0.5f, -0.5f, -0.5f);
+        glTexCoord2f(larg * z + larg, alt * x);
+        glVertex3f(-0.5f, -0.5f, -0.5f);
+        glTexCoord2f(larg * z + larg, alt * x + alt);
+        glVertex3f(-0.5f, 0.5f, -0.5f);
+        glTexCoord2f(larg * z, alt * x + alt);
+        glVertex3f(0.5f, 0.5f, -0.5f);
+        glTexCoord2f(larg * z, alt * x);
+        glVertex3f(0.5f, -0.5f, -0.5f);
 
-        glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f, 0.5f, -0.5f);
-        glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5f, 0.5f, 0.5f);
-        glTexCoord2f(1.0f, 0.0f); glVertex3f(0.5f, 0.5f, 0.5f);
-        glTexCoord2f(1.0f, 1.0f); glVertex3f(0.5f, 0.5f, -0.5f);
+        glTexCoord2f(larg * z, alt * x + alt);
+        glVertex3f(-0.5f, 0.5f, -0.5f);
+        glTexCoord2f(larg * z, alt * x);
+        glVertex3f(-0.5f, 0.5f, 0.5f);
+        glTexCoord2f(larg * z + larg, alt * x);
+        glVertex3f(0.5f, 0.5f, 0.5f);
+        glTexCoord2f(larg * z + larg, alt * x + alt);
+        glVertex3f(0.5f, 0.5f, -0.5f);
 
-        glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5f, -0.5f, -0.5f);
-        glTexCoord2f(0.0f, 1.0f); glVertex3f(0.5f, -0.5f, -0.5f);
-        glTexCoord2f(0.0f, 0.0f); glVertex3f(0.5f, -0.5f, 0.5f);
-        glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5f, -0.5f, 0.5f);
+        glTexCoord2f(larg * z + larg, alt * x + alt);
+        glVertex3f(-0.5f, -0.5f, -0.5f);
+        glTexCoord2f(larg * z, alt * x + alt);
+        glVertex3f(0.5f, -0.5f, -0.5f);
+        glTexCoord2f(larg * z, alt * x);
+        glVertex3f(0.5f, -0.5f, 0.5f);
+        glTexCoord2f(larg * z + larg, alt * x);
+        glVertex3f(-0.5f, -0.5f, 0.5f);
 
-        glTexCoord2f(1.0f, 0.0f); glVertex3f(0.5f, -0.5f, -0.5f);
-        glTexCoord2f(1.0f, 1.0f); glVertex3f(0.5f, 0.5f, -0.5f);
-        glTexCoord2f(0.0f, 1.0f); glVertex3f(0.5f, 0.5f, 0.5f);
-        glTexCoord2f(0.0f, 0.0f); glVertex3f(0.5f, -0.5f, 0.5f);
+        glTexCoord2f(larg * z + larg, alt * x);
+        glVertex3f(0.5f, -0.5f, -0.5f);
+        glTexCoord2f(larg * z + larg, alt * x + alt);
+        glVertex3f(0.5f, 0.5f, -0.5f);
+        glTexCoord2f(larg * z, alt * x + alt);
+        glVertex3f(0.5f, 0.5f, 0.5f);
+        glTexCoord2f(larg * z, alt * x);
+        glVertex3f(0.5f, -0.5f, 0.5f);
 
-        glTexCoord2f(0.0f, 0.0f); glVertex3f(-0.5f, -0.5f, -0.5f);
-        glTexCoord2f(1.0f, 0.0f); glVertex3f(-0.5f, -0.5f, 0.5f);
-        glTexCoord2f(1.0f, 1.0f); glVertex3f(-0.5f, 0.5f, 0.5f);
-        glTexCoord2f(0.0f, 1.0f); glVertex3f(-0.5f, 0.5f, -0.5f);
+        glTexCoord2f(larg * z, alt * x);
+        glVertex3f(-0.5f, -0.5f, -0.5f);
+        glTexCoord2f(larg * z + larg, alt * x);
+        glVertex3f(-0.5f, -0.5f, 0.5f);
+        glTexCoord2f(larg * z + larg, alt * x + alt);
+        glVertex3f(-0.5f, 0.5f, 0.5f);
+        glTexCoord2f(larg * z, alt * x + alt);
+        glVertex3f(-0.5f, 0.5f, -0.5f);
         glEnd();
+
     }
 
     private void rotacionaAmbiente() {
@@ -298,11 +340,13 @@ public class ExemploBasico3D {
     //  void DefineLuz(void)
     // **********************************************************************
     void DefineLuz() {
+
+
         // Define cores para um objeto dourado
         float LuzAmbiente[] = {0.4f, 0.4f, 0.4f};
         float LuzDifusa[] = {0.7f, 0.7f, 0.7f};
         float LuzEspecular[] = {0.9f, 0.9f, 0.9f};
-        float PosicaoLuz0[] = {0.0f, 3.0f, 5.0f};  // Posi��o da Luz
+        float PosicaoLuz0[] = {2.0f, 3.0f, 0.0f};  // Posi��o da Luz
         float Especularidade[] = {1.0f, 1.0f, 1.0f};
 
         // ****************  Fonte de Luz 0
@@ -505,23 +549,36 @@ public class ExemploBasico3D {
     // **********************************************************************
     void DesenhaLadrilho(int corBorda, int corDentro) {
         //defineCor(corDentro);// desenha QUAD preenchido
-        glColor3f(1, 1, 1);
+        glBindTexture(GL_TEXTURE_2D, 1001);
         glBegin(GL_QUADS);
         glNormal3f(0, 1, 0);
+        glTexCoord2f(0.0f, 0.0f);
         glVertex3f(-0.5f, 0.0f, -0.5f);
+        glTexCoord2f(1.0f, 0.0f);
+
         glVertex3f(-0.5f, 0.0f, 0.5f);
+        glTexCoord2f(1.0f, 1.0f);
+
         glVertex3f(0.5f, 0.0f, 0.5f);
+        glTexCoord2f(1.0f, 0.0f);
+
         glVertex3f(0.5f, 0.0f, -0.5f);
         glEnd();
 
-        //defineCor(corBorda);
-        glColor3f(0, 1, 0);
-
+        glColor3f(1f, 1f, 1f);
         glBegin(GL_LINE_STRIP);
-        glNormal3f(0, 1, 0);
+        glNormal3f(0f, 1f, 0f);
+        glTexCoord2f(0.0f, 0.0f);
+
         glVertex3f(-0.5f, 0.0f, -0.5f);
+        glTexCoord2f(0.0f, 0.0f);
+
         glVertex3f(-0.5f, 0.0f, 0.5f);
+        glTexCoord2f(0.0f, 0.0f);
+
         glVertex3f(0.5f, 0.0f, 0.5f);
+        glTexCoord2f(1.0f, 0.0f);
+
         glVertex3f(0.5f, 0.0f, -0.5f);
         glEnd();
     }
