@@ -11,10 +11,6 @@ public class Personagem {
     public float spd = 0.1f;
     public boolean jogador;
 
-    public Ponto vetorDir;
-
-    //para o paralelepipedo foi necessario soh 6 pts. nao tenho ctz se eu soh preciso de 6 tbm aqui.
-
     public Personagem(Ponto posicao, boolean jogador) {
         this.posicao = posicao;
         this.jogador = jogador;
@@ -43,13 +39,13 @@ public class Personagem {
                 direcao.z = (float) (direcao.x * Math.sin(v) + direcao.z * Math.cos(v));
             }
             if (KeyListener.getInstance().isKeyPressed(GLFW_KEY_W)) {
-                posicao.z -= spd*Math.sin(angulo*3.14159 / 180);
-                posicao.x += spd*Math.cos(angulo*3.14159 / 180);
+                posicao.z -= spd * Math.sin(angulo * 3.14159 / 180);
+                posicao.x += spd * Math.cos(angulo * 3.14159 / 180);
             }
             if (KeyListener.getInstance().isKeyPressed(GLFW_KEY_S)) {
-                if(anguloCanhao<50) {
+                if (anguloCanhao < 50) {
                     anguloCanhao++;
-                }else {
+                } else {
                     anguloCanhao = -50;
                 }
             }
